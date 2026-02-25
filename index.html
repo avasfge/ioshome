@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" id="safari-bar" content="#F2F2F7">
+
+    <title>iHub Next Gen</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --bg: #F2F2F7;
+            --card: #FFFFFF;
+            --text: #000000;
+            --blue: #007AFF;
+            --gray: #8E8E93;
+            --radius: 20px;
+            --island-bg: #000000;
+        }
+
+        [data-os="ios20"] {
+            --bg: #FFFFFF;
+            --card: #F9F9F9;
+            --blue: #000000;
+            --radius: 28px;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            overflow: hidden; 
+            height: 100vh;
+            user-select: none;
+        }
+
+        /* DYNAMIC ISLAND 2.0 */
+        .island-wrap { 
+            position: fixed; 
+            top: 11px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 9999; 
+            pointer-events: none; 
+        }
+        .island {
+            width: 120px; height: 36px; background: var(--island-bg); border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 12px; font-weight: 600; padding: 0 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), height 0.3s;
+        }
+        .island.active { width: 280px; height: 44px; border-radius: 22px; }
+
+        /* NAVIGATION */
+        .tab-bar {
+            position: fixed; bottom: 0; width: 100%; height: 88px;
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; justify-content: space-around; border-top: 0.3px solid rgba(0,0,0,0.1);
+            padding-bottom: env(safe-area-inset-bottom); z-index: 1000;
+        }
+
+        .tab-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--gray); text-decoration: none; font-size: 10px; width: 25%;
+            transition: transform 0.2s;
+        }
+        .tab-item:active { transform: scale(0.9); }
+        .tab-item i { font-size: 24px; margin-bottom: 2px; }
+        .tab-item.active { color: var(--blue); }
+
+        /* CONTENT LAYER */
+        .content { 
+            height: 100vh; 
+            overflow-y: auto; 
+            padding: calc(70px + env(safe-area-inset-top)) 20px 120px 20px; 
+            scroll-behavior: smooth;
+        }
+        .page { display: none; opacity: 0; transform: translateY(15px); }
+        .page.active { display: block; animation: pageIn 0.5s forwards; }
+        
+        @keyframes pageIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 34px; font-weight: 800; letter-spacing: -1px; margin: 5px 0 20px 0; }
+
+        /* WIDGETS */
+        .card { 
+            background: var(--card); 
+            border-radius: var(--radius); 
+            padding: 20px; 
+            margin-bottom: 16px; 
+            border: 0.5px solid rgba(0,0,0,0.04);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .card:active { transform: scale(0.98); }
+
+        .btn-main {
+            background: var(--blue); color: white; border: none; border-radius: 16px;
+            padding: 16px; width: 100%; font-weight: 600; font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* TASKS */
+        .task-row { 
+            display: flex; align-items: center; padding: 16px; 
+            background: var(--card); border-radius: 14px; margin-bottom: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+        .check { 
+            width: 24px; height: 24px; border: 2px solid var(--blue); 
+            border-radius: 7px; margin-right: 15px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .check.done { background: var(--blue); }
+        .check.done::after { content: '✓'; color: white; font-size: 14px; }
+        .task-text.done { text-decoration: line-through; opacity: 0.5; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } }
+
+        /* BREATHE ANIMATION */
+        .breathe-circle {
+            width: 150px; height: 150px; background: var(--blue); 
+            border-radius: 50%; margin: 40px auto; opacity: 0.6;
+            filter: blur(20px);
+        }
+        .anim-breathe { animation: breathe 4s infinite ease-in-out; }
+        @keyframes breathe { 
+            0%, 100% { transform: scale(1); opacity: 0.3; } 
+            50% { transform: scale(1.5); opacity: 0.7; } 
+        }
+    </style>
+</head>
+<body data-os="ios15">
+
+    <div class="island-wrap">
+        <div class="island" id="island">iHub Next</div>
+    </div>
+
+    <div class="content">
+        <div id="p-home" class="page active">
+            <div id="greeting" style="font-size: 13px; font-weight: 700; color: var(--gray); text-transform: uppercase;">ЗАГРУЗКА...</div>
+            <h1>Обзор</h1>
+            
+            <div class="card" onclick="addWater()">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; font-size: 17px;">💧 Гидратация</span>
+                    <span id="w-count" style="font-weight: 700; color: var(--blue);">0/8</span>
+                </div>
+                <div style="height: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; margin-top: 15px; overflow: hidden;">
+                    <div id="w-bar" style="width: 0%; height: 100%; background: var(--blue); border-radius: 4px;"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="font-weight: 600; margin-bottom: 10px;">Медитация</div>
+                <div id="breathe-ball" class="breathe-circle" style="display:none;"></div>
+                <button class="btn-main" id="btn-breathe" onclick="startBreath()">Начать сессию</button>
+            </div>
+        </div>
+
+        <div id="p-tasks" class="page">
+            <h1>Планы</h1>
+            <div class="card" style="padding: 10px;">
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="t-input" placeholder="Добавить цель..." 
+                           style="flex: 1; border:none; background:rgba(0,0,0,0.05); padding:14px; border-radius:12px; outline:none;">
+                    <button onclick="addTask()" style="background:var(--blue); color:white; border:none; border-radius:12px; width:44px;"><i class="bi bi-plus-lg"></i></button>
+                </div>
+            </div>
+            <div id="t-list"></div>
+        </div>
+
+        <div id="p-focus" class="page">
+            <h1>Фокус</h1>
+            <div class="card" style="text-align: center; padding: 40px 20px;">
+                <div id="timer-display" style="font-size: 64px; font-weight: 800; letter-spacing: -3px; margin-bottom: 5px;">25:00</div>
+                <div style="color: var(--gray); font-size: 15px; margin-bottom: 30px;">Время глубокой работы</div>
+                <button class="btn-main" id="timer-btn" onclick="toggleTimer()">Запустить таймер</button>
+            </div>
+        </div>
+
+        <div id="p-settings" class="page">
+            <h1>Система</h1>
+            <div class="card">
+                <div style="font-weight: 600; margin-bottom: 15px;">Версия интерфейса</div>
+                <div style="display: flex; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 14px;">
+                    <button id="os15" onclick="setOS('ios15')" style="flex:1; border:none; padding:10px; border-radius:11px; font-weight:600;">iOS 15</button>
+                    <button id="os20" onclick="setOS('ios20')" style="flex:1; border:none; padding:10px; border-radius:11px; font-weight:600;">iOS 20</button>
+                </div>
+            </div>
+            <div class="card" style="text-align:center; color: #FF3B30; font-weight: 600;" onclick="resetSystem()">
+                Сбросить все данные
+            </div>
+        </div>
+    </div>
+
+    <nav class="tab-bar">
+        <a href="#" class="tab-item active" onclick="nav('p-home', this)"><i class="bi bi-house-door-fill"></i><span>Главная</span></a>
+        <a href="#" class="tab-item" onclick="nav('p-tasks', this)"><i class="bi bi-calendar2-check-fill"></i><span>Планы</span></a>
+        <a href="#" class="tab-item" onclick="nav('p-focus', this)"><i class="bi bi-clock-fill"></i><span>Фокус</span></a>
+        <a href="#" class="tab-item" onclick="nav('p-settings', this)"><i class="bi bi-sliders"></i><span>Опции</span></a>
+    </nav>
+
+    <script>
+        let state = JSON.parse(localStorage.getItem('ihub_next_v2')) || { 
+            os: 'ios15', water: 0, tasks: [], focusSeconds: 1500 
+        };
+        
+        let timerInterval = null;
+
+        function haptic(type) {
+            if (!navigator.vibrate) return;
+            if (type === 'light') navigator.vibrate(10);
+            if (type === 'medium') navigator.vibrate(30);
+            if (type === 'success') navigator.vibrate([10, 30, 10]);
+        }
+
+        // Обновление даты и приветствия
+        function updateGreeting() {
+            const now = new Date();
+            const hours = now.getHours();
+            let greet = hours < 6 ? "Доброй ночи" : hours < 12 ? "Доброе утро" : hours < 18 ? "Добрый день" : "Добрый вечер";
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            document.getElementById('greeting').innerText = `${now.toLocaleDateString('ru-RU', options)}`;
+        }
+
+        function setOS(ver) {
+            state.os = ver;
+            document.body.setAttribute('data-os', ver);
+            document.getElementById('os15').style.background = ver === 'ios15' ? '#fff' : 'transparent';
+            document.getElementById('os20').style.background = ver === 'ios20' ? '#fff' : 'transparent';
+            haptic('light');
+            save();
+        }
+
+        function triggerIsland(msg, dur = 2000) {
+            const isl = document.getElementById('island');
+            isl.innerText = msg;
+            isl.classList.add('active');
+            haptic('medium');
+            setTimeout(() => {
+                isl.classList.remove('active');
+                setTimeout(() => isl.innerText = 'iHub Next', 400);
+            }, dur);
+        }
+
+        function nav(id, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
+            haptic('light');
+        }
+
+        function addWater() { 
+            state.water = state.water >= 8 ? 0 : state.water + 1; 
+            triggerIsland(state.water >= 8 ? "🎯 Цель достигнута!" : `💧 Стакан ${state.water}/8`);
+            save(); 
+        }
+
+        function startBreath() {
+            const ball = document.getElementById('breathe-ball');
+            const btn = document.getElementById('btn-breathe');
+            if(ball.style.display === 'none') {
+                ball.style.display = 'block';
+                ball.classList.add('anim-breathe');
+                btn.innerText = "Завершить";
+                triggerIsland("🫁 Вдох... Выдох...");
+            } else {
+                ball.style.display = 'none';
+                btn.innerText = "Начать сессию";
+                triggerIsland("✨ Расслабление завершено");
+            }
+        }
+
+        function toggleTimer() {
+            if(timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                document.getElementById('timer-btn').innerText = "Продолжить";
+                triggerIsland("⏸ Таймер на паузе");
+            } else {
+                triggerIsland("🚀 Фокус активирован");
+                document.getElementById('timer-btn').innerText = "Пауза";
+                timerInterval = setInterval(() => {
+                    state.focusSeconds--;
+                    renderTimer();
+                    if(state.focusSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        triggerIsland("🎉 Время вышло!");
+                        haptic('success');
+                        state.focusSeconds = 1500;
+                    }
+                }, 1000);
+            }
+        }
+
+        function renderTimer() {
+            const m = Math.floor(state.focusSeconds / 60);
+            const s = state.focusSeconds % 60;
+            document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function addTask() {
+            const input = document.getElementById('t-input');
+            if(input.value.trim()) {
+                state.tasks.unshift({ id: Date.now(), text: input.value, done: false });
+                input.value = '';
+                haptic('light');
+                save();
+            }
+        }
+
+        function toggleTask(id) {
+            state.tasks = state.tasks.map(t => t.id === id ? {...t, done: !t.done} : t);
+            haptic('light');
+            setTimeout(() => {
+                state.tasks = state.tasks.filter(t => t.id !== id || !t.done);
+                save();
+            }, 600);
+            render();
+        }
+
+        function resetSystem() {
+            if(confirm("Удалить все данные?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function save() { 
+            localStorage.setItem('ihub_next_v2', JSON.stringify(state)); 
+            render(); 
+        }
+
+        function render() {
+            document.getElementById('w-count').innerText = state.water + '/8';
+            document.getElementById('w-bar').style.width = (state.water/8 * 100) + '%';
+            
+            const list = document.getElementById('t-list');
+            list.innerHTML = state.tasks.map(t => `
+                <div class="task-row" onclick="toggleTask(${t.id})">
+                    <div class="check ${t.done ? 'done' : ''}"></div>
+                    <span class="task-text ${t.done ? 'done' : ''}" style="flex:1">${t.text}</span>
+                </div>
+            `).join('');
+            renderTimer();
+        }
+
+        // Init
+        updateGreeting();
+        setOS(state.os);
+        render();
+    </script>
+</body>
+</html>
